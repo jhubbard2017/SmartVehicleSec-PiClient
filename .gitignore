@@ -2,12 +2,12 @@
 .tox/
 *.egg-info/
 .DS_Store
-.idea/
 .coverage
 venv-*/
 build/
 dist/
 *.keytab
 *.log
-scripts/*
+.idea/
 .cache/
+scripts/*
