@@ -1,0 +1,9 @@
+-r requirements.txt
+mock
+ipdb
+pdbpp
+pre-commit
+pyflakes
+pytest
+pytest-cov
+tox
