@@ -9,7 +9,5 @@ dist/
 *.keytab
 *.log
 .idea/
-.idea/inspectionProfiles/
-.idea/workspace.xml
 .cache/
 scripts/*
