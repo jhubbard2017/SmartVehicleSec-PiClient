@@ -6,3 +6,4 @@ opencv-python
 imutils
 flask
 configparser
+netifaces

@@ -5,8 +5,9 @@
 
 import requests
 import time
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, abort
 from threading import Thread
+import netifaces
 
 from securityclientpy import _logger
 from securityclientpy.hwcontroller import HardwareController
@@ -16,6 +17,13 @@ _SUCCESS_CODE = 201
 _FAILURE_CODE = 404
 
 app = Flask(__name__)
+
+def get_mac_address():
+    """method to get the MAC address of the raspberry pi using eth0 interface"""
+    eth0_interface = 'eth0'
+    addresses = netifaces.ifaddresses(eth0_interface)[netifaces.AF_LINK][0]
+    mac_address = addresses['addr']
+    return mac_address
 
 class SecurityClient(object):
     """ Todo: add class description here
@@ -32,7 +40,7 @@ class SecurityClient(object):
     _FLASH_DEVICE_CONNECTED = 4
     _FLASH_SERVER_ON = 3
 
-    def __init__(self, host, port, no_hardware=False, no_video=False, testing=False):
+    def __init__(self, host, port, no_hardware=False, no_video=False, dev=False, testing=False):
         """constructor method for SecurityServer
 
         HardwareController: used to control all pieces of hardware connected to the raspberry pi
@@ -54,6 +62,16 @@ class SecurityClient(object):
         if not self.no_video:
             self.videostream = VideoStreamer(SecurityServer._DEFAULT_CAMERA_ID)
 
+        if dev:
+            self.mac_address = 'DEVELOP'
+        else:
+            self.mac_address = get_mac_address()
+        if testing:
+            self.mac_address = 'TESTING'
+
+        self.system_armed = False
+        self.system_breached = False
+
         # Use inner methods so API methods can access self parameter
 
         # Error handling
@@ -61,30 +79,118 @@ class SecurityClient(object):
         def not_found(error):
             return jsonify({'code': _FAILURE_CODE,'data': 0})
 
-        @app.route('/system/arm', methods=['GET'])
+        @app.route('/system/arm', methods=['POST'])
         def arm_system():
-            """API route to arm the security system"""
-            pass
+            """API route to arm the security system
 
-        @app.route('/system/disarm', methods=['GET'])
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json or not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                abort(_FAILURE_CODE)
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                abort(_FAILURE_CODE)
+
+            if self.system_armed:
+                _logger.info("System already armed")
+                abort(_FAILURE_CODE)
+
+            self.system_armed = True
+            thread = Thread(target=self._system_armed_thread)
+            thread.start()
+            return jsonify({'code': _SUCCESS_CODE,'data': True})
+
+        @app.route('/system/disarm', methods=['POST'])
         def disarm_system():
-            """API route to disarm the security system"""
-            pass
+            """API route to disarm the security system
 
-        @app.route('/system/false_alarm', methods=['GET'])
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json or not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                abort(_FAILURE_CODE)
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                abort(_FAILURE_CODE)
+
+            if not self.system_armed:
+                _logger.info("System already disarmed")
+                abort(_FAILURE_CODE)
+
+            self.system_armed = False
+            return jsonify({'code': _SUCCESS_CODE,'data': True})
+
+        @app.route('/system/false_alarm', methods=['POST'])
         def set_false_alarm():
-            """API route to set security breach as false alarm"""
-            pass
+            """API route to set security breach as false alarm
 
-        @app.route('/system/location', methods=['GET'])
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json or not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                abort(_FAILURE_CODE)
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                abort(_FAILURE_CODE)
+
+            if not self.system_breached:
+                _logger.info("System not breached")
+                abort(_FAILURE_CODE)
+
+            self.system_breached = False
+            return jsonify({'code': _SUCCESS_CODE,'data': True})
+
+        @app.route('/system/location', methods=['POST'])
         def get_gps_location():
-            """API route to get gps location coordinates"""
-            pass
+            """API route to get gps location coordinates
 
-        @app.route('/system/temperature', methods=['GET'])
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json or not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                abort(_FAILURE_CODE)
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                abort(_FAILURE_CODE)
+
+            data = self._fetch_location_coordinates()
+            _logger.info('Sending gps coordinates.')
+            return jsonify({'code': _SUCCESS_CODE,'data': data})
+
+        @app.route('/system/temperature', methods=['POST'])
         def get_temperature():
-            """API route to get current temperature data"""
-            pass
+            """API route to get current temperature data
+
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json or not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                abort(_FAILURE_CODE)
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                abort(_FAILURE_CODE)
+            if not self.no_hardware:
+                data = self.hwcontroller.read_thermal_sensor()
+            else:
+                data = {'fahrenheit': 73.3, 'celcius': 32.0}
+            _logger.info('Sending temperature')
+            return jsonify({'code': _SUCCESS_CODE,'data': data})
 
     def _system_armed_thread(self):
         """starts once the system has been armed
@@ -100,18 +206,20 @@ class SecurityClient(object):
             • To be on the safe side, we assume its a break in, and fire up the `system_breached_thread`
             • If motion hasnt been detected, we just continue to check until the system is disarmed
         """
-        _logger.debug('System armed in 5 secs.')
+        _logger.info('System will arm in 5 secs')
         time.sleep(5)
-        while self.security_config.system_armed:
+        _logger.info('System armed')
+        while self.system_armed:
             if not self.no_hardware and not self.no_video:
                 motion_detected = self.hwcontroller.read_motion_sensor()
                 noise_detected = self.hwcontroller.read_noise_sensor()
                 if motion_detected or noise_detected:
-                    self.security_config.system_breached = True
+                    self.system_breached = True
                     self.hwcontroller.status_led_flash_start()
                     system_breach_thread = Thread(target=self._system_breached_thread)
                     system_breach_thread.start()
             time.sleep(0.2)
+        _logger.info('System disarmed')
 
     def _system_breached_thread(self):
         """starts once the system has been breached
@@ -129,21 +237,22 @@ class SecurityClient(object):
             • The thread will stop once we either recieve false alarm data from the client, or they reach out to dispatchers
                 and the situation is resolved.
         """
-        _logger.debug('System breached.')
-        self.logs.add_log("System breached", SecurityServer._SECURITY_CONTROLLED_LOG_TYPE)
+        _logger.info('System breached.')
+        # Todo: Notify server
         # video recorder
         fourcc = cv2.cv.CV_FOURCC(*'XVID')  # cv2.VideoWriter_fourcc() does not exist
         video_writer = cv2.VideoWriter("system-breach-recording-{:%b %d, %Y %-I:%M %p}.avi".format(datetime.datetime().now()),
                                        fourcc, 20, (680, 480))
-        while self.security_config.system_breached:
+        while self.system_breached:
             if not self.no_hardware:
                 status, frame_jpeg, frame = self.videostream.read()
                 if status:
                     video_writer.write(frame)
+        _logger.info('System breach ended')
 
     def save_settings(self):
         """method is fired when the user disconnects or the socket connection is broken"""
-        _logger.debug('Saving security session.')
+        _logger.info('Saving security session.')
 
         if not self.no_video or not self.no_hardware:
             self.videostream.release_stream()

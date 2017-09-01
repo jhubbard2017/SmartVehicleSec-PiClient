@@ -40,7 +40,7 @@ class PanicResponse(object):
 
         sent = self.construct_email_and_send(email_address)
         if not sent:
-            _logger.debug('Error. Email could not be sent to [{0}]'.format(contact['email']))
+            _logger.debug('Error. Email could not be sent to [{0}]'.format(email_address))
             return not success
 
         return success
