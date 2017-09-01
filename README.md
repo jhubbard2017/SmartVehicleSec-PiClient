@@ -1,57 +1,16 @@
 # Smart Vehicle Security Server
-Python server software for the Smart Vehicle Security System.
+Python client server software for the Smart Vehicle Security System (Raspberry Pi Client).
 
 ## Usage Examples
 ### running on local machine and raspberry pi
 - this example assumes a python virtual env has already been established - see details on virtual env
-- this example does not trigger any calls to hardware devices
+- this example does not trigger any calls to hardware devices or video devices
 ```shell
-(venv-securityserverpy) $ securityserverpy -i ip_address -p port 
+(venv-securityclientpy) $ securityclientpy -i ip_address -p port 
 ```
 - the required arguments are the ip address and port number. These two need to be specified to start the program.
 - Optional arguments include `-nh` (no hardware configuration) `-nv` (no video configuration). Only use the hardware configuration of running on the raspberry pi.
-
-# YAML Configurations
-
-## Security Config File
-`securityserverpy` uses a yaml security config file:
-```shell
-yamls/serverconfig.yaml
-```
-
-### Config Values
-- `system_armed` security system is armed
-- `system_breached` security system has been breached
-- `cameras_live` cameras are currently live and/or recording
-
-## Devices File
-`securityserverpy` uses a yaml devices file. to create a device file:
-```shell
-yamls/devices.yaml
-```
-
-### Devices Values
-For flexibility purposes, users may be able to connect more than one device/client to our security server.
-- `devices` list of connected and allowed devices
-
-## Logs File
-- user controlled and security controlled alerts/logs are store in a logs config file:
-```shell
-yamls/logs.yaml
-```
-
-### Logs Values
-- `user_controlled_type` logs initiated/created by the client
-- `security_controlled_type` logs initiated/create by the security system
-
-## Contacts File
-`securityserverpy` uses a yaml contacts file for storing the trustworthy contacts of the client:
-```shell
-yamls/contacts.yaml
-```
-
-### Contacts Values
-- `contacts` list of dict objects representing a contact (name, phone, email)
+- When developing on a local machine, use the `-dev` argument to set a known MAC address (DEVELOP).
 
 # Python Details
 ## first time python setup
@@ -105,16 +64,13 @@ There is a single definition of the package version in `securityserver/version.p
 
 # Testing
 
-## specifying yaml files
-- There are a group of yaml testing files in `tests/data`. If you need to add a yaml config file, you can store it in this location.
-- To ensure the automated tests run smoothly and do not create any pollution, make sure you clear the associated yaml config file before and after tests.
-
 ## running automated tests
 - Test are organized using the `unittest` framework provided by python. To setup tests and successfully close them, use the `setUp` and `tearDown` methods
 - Examples are in the current test files in the project.
 ```shell
 $ make test
 ```
+- Make sure to keep all test cases uniform.
 
 ## running automated tests with a debugger
 - If you need to run test with a debugger, then use the following command:
@@ -124,4 +80,4 @@ $ make testpdb
 
 ## Contributing
 - If you want to contribute, create a new branch and update your code. The master branch is protected, so submit a pull request and let another contributor review it.
-- Before submitting PR, please make sure the program successfully runs as expected and that all tests are passing and not polluting.
+- Before submitting PR, please make sure the program successfully runs as expected and that all tests are passing with no pollution.
