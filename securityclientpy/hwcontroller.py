@@ -143,7 +143,7 @@ class HardwareController(object):
             ctemp = float(data_string) / 1000.0
             ftemp = ctemp * 9.0 / 5.0 + 32.0
 
-        return ctemp, ftemp
+        return {'fahrenheit': ftemp, 'celcius': ctemp}
 
     def read_noise_sensor(self):
         """fetches the current dbs of the noise sensor

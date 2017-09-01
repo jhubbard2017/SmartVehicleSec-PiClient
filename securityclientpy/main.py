@@ -35,14 +35,17 @@ def _config_from_args():
     optional_argument_group.add_argument(
         '-nv', '--no_video', dest='no_video', action='store_true', default=False, required=False,
         help='Will not attempt to use any hardware.')
+    optional_argument_group.add_argument(
+        '-dev', '--develop', dest='dev', action='store_true', default=False, required=False,
+        help='Will not attempt to use any hardware.')
 
     return parser.parse_args()
 
 # Make global so can be accessed when need to stop system, and safely save settings
 config = _config_from_args()
 port = int(config.port)
-sec_server = SecurityClient(host=config.host, http_port=port,
-                            no_hardware=config.no_hardware, no_video=config.no_video)
+sec_server = SecurityClient(host=config.host, port=port,
+                            no_hardware=config.no_hardware, no_video=config.no_video, dev=config.dev)
 
 def main_thread():
     """main thread to start up the server"""

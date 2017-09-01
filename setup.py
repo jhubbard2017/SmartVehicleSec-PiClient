@@ -14,7 +14,12 @@ setup(
     setup_requires='setuptools',
     install_requires=[
         'xmltodict',
-        'PyYAML'
+        'requests',
+        'PyYAML',
+        'opencv-python',
+        'imutils',
+        'flask',
+        'configparser',
     ],
     entry_points={
         'console_scripts': [
