@@ -40,7 +40,7 @@ class SecurityClient(object):
     _FLASH_DEVICE_CONNECTED = 4
     _FLASH_SERVER_ON = 3
 
-    def __init__(self, host, port, no_hardware=False, no_video=False, dev=False, testing=False):
+    def __init__(self, host, port, serverhost, serverport, no_hardware=False, no_video=False, dev=False, testing=False):
         """constructor method for SecurityServer
 
         HardwareController: used to control all pieces of hardware connected to the raspberry pi
@@ -52,6 +52,8 @@ class SecurityClient(object):
         """
         self.host = host
         self.port = port
+        self.serverhost = serverhost
+        self.serverport = serverport
 
         self.no_hardware = no_hardware
         self.no_video = no_video
@@ -192,6 +194,34 @@ class SecurityClient(object):
             _logger.info('Sending temperature')
             return jsonify({'code': _SUCCESS_CODE,'data': data})
 
+    def _initialize_client(self):
+        """update ip address and port number on server database, and any other data that needs to be stored
+        """
+        url = 'http://{0}:{1}/system/get_connection'.format(self.serverhost, self.serverport)
+        data = {'rd_mac_address': self.mac_address}
+        response = requests.post(url, data=data)
+        json_data = response.json()
+        if json_data['data']:
+            # update here
+            url = url = 'http://{0}:{1}/system/update_connection'.format(self.serverhost, self.serverport)
+            data = {'rd_mac_address': self.mac_address, 'ip_address': self.host, 'port': self.port}
+            response = requests.post(url, data=data)
+            json_data = response.json()
+            if not json_data['data']:
+                _logger.info('Failed to update connection on server')
+                return
+        else:
+            # add here
+            url = url = 'http://{0}:{1}/system/add_connection'.format(self.serverhost, self.serverport)
+            data = {'rd_mac_address': self.mac_address, 'ip_address': self.host, 'port': self.port}
+            response = requests.post(url, data=data)
+            json_data = response.json()
+            if not json_data['data']:
+                _logger.info('Failed to add connection on server')
+                return
+
+        _logger.info('Successfully initialized system')
+
     def _system_armed_thread(self):
         """starts once the system has been armed
 
@@ -260,6 +290,7 @@ class SecurityClient(object):
     def start(self):
         """starts the flask app"""
         app.run(host=self.host, port=self.port)
+        self._initialize_client()
 
     def server_app(self):
         return app
