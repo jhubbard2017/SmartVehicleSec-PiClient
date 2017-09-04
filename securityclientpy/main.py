@@ -30,13 +30,19 @@ def _config_from_args():
         '-p', '--port', dest='port', default=None, required=True,
         help='Port number used for clients to access server. ')
     optional_argument_group.add_argument(
+        '-si', '--serverhost', dest='serverhost', default=None, required=True,
+        help='Port number used for clients to access server. ')
+    optional_argument_group.add_argument(
+        '-sp', '--serverport', dest='serverport', default=None, required=True,
+        help='Port number used for clients to access server. ')
+    optional_argument_group.add_argument(
         '-nh', '--no_hardware', dest='no_hardware', action='store_true', default=False, required=False,
         help='Will not attempt to use any hardware.')
     optional_argument_group.add_argument(
         '-nv', '--no_video', dest='no_video', action='store_true', default=False, required=False,
         help='Will not attempt to use any hardware.')
     optional_argument_group.add_argument(
-        '-dev', '--develop', dest='dev', action='store_true', default=False, required=False,
+        '-d', '--dev', dest='dev', action='store_true', default=False, required=False,
         help='Will not attempt to use any hardware.')
 
     return parser.parse_args()
@@ -44,7 +50,8 @@ def _config_from_args():
 # Make global so can be accessed when need to stop system, and safely save settings
 config = _config_from_args()
 port = int(config.port)
-sec_server = SecurityClient(host=config.host, port=port,
+serverport = int(config.serverport)
+sec_server = SecurityClient(host=config.host, port=port, serverhost=config.serverhost, serverport=serverport,
                             no_hardware=config.no_hardware, no_video=config.no_video, dev=config.dev)
 
 def main_thread():

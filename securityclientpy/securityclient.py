@@ -44,17 +44,18 @@ class SecurityClient(object):
         """constructor method for SecurityServer
 
         HardwareController: used to control all pieces of hardware connected to the raspberry pi
-        DeviceManager: module used to store device information that connects to the server
-        SecurityConfig: a collection of security attributes about the system (system armed, cameras live, etc.)
         VideoStreamer: module to control video streaming to clients from server, and motion detection
 
         We use the 2 config values (no_hardware and no_video) for different development modes
         """
         self.host = host
         self.port = port
+
+        # Use to connect and send http requests to server
         self.serverhost = serverhost
         self.serverport = serverport
 
+        # For different development modes
         self.no_hardware = no_hardware
         self.no_video = no_video
 
@@ -64,6 +65,8 @@ class SecurityClient(object):
         if not self.no_video:
             self.videostream = VideoStreamer(SecurityServer._DEFAULT_CAMERA_ID)
 
+        # If in development mode, we set a MAC address "DEVELOP" to easily access it from the server
+        # If testing, we set a MAC address "TESTING"
         if dev:
             self.mac_address = 'DEVELOP'
         else:
@@ -71,8 +74,10 @@ class SecurityClient(object):
         if testing:
             self.mac_address = 'TESTING'
 
+        # We want to always keep a local copy of the current security config
         self.system_armed = False
         self.system_breached = False
+        self._initialize_client()
 
         # Use inner methods so API methods can access self parameter
 
@@ -170,7 +175,7 @@ class SecurityClient(object):
 
             data = self._fetch_location_coordinates()
             _logger.info('Sending gps coordinates.')
-            return jsonify({'code': _SUCCESS_CODE,'data': data})
+            return jsonify({'code': _SUCCESS_CODE, 'data': data})
 
         @app.route('/system/temperature', methods=['POST'])
         def get_temperature():
@@ -192,34 +197,62 @@ class SecurityClient(object):
             else:
                 data = {'fahrenheit': 73.3, 'celcius': 32.0}
             _logger.info('Sending temperature')
-            return jsonify({'code': _SUCCESS_CODE,'data': data})
+            return jsonify({'code': _SUCCESS_CODE, 'data': data})
 
     def _initialize_client(self):
         """update ip address and port number on server database, and any other data that needs to be stored
+
+        Also in this method, we want to get the current security config of the system
+            - If we are updating connection parameters, the security config should already be created
+            - If we are adding a new connection, we need to create the new security config and initialize both config
+                values to false
         """
         url = 'http://{0}:{1}/system/get_connection'.format(self.serverhost, self.serverport)
         data = {'rd_mac_address': self.mac_address}
-        response = requests.post(url, data=data)
+        response = requests.post(url, json=data)
         json_data = response.json()
         if json_data['data']:
             # update here
-            url = url = 'http://{0}:{1}/system/update_connection'.format(self.serverhost, self.serverport)
+            url = 'http://{0}:{1}/system/update_connection'.format(self.serverhost, self.serverport)
             data = {'rd_mac_address': self.mac_address, 'ip_address': self.host, 'port': self.port}
-            response = requests.post(url, data=data)
+            response = requests.post(url, json=data)
             json_data = response.json()
             if not json_data['data']:
                 _logger.info('Failed to update connection on server')
                 return
+
+            url = 'http://{0}:{1}/system/security_config'.format(self.serverhost, self.serverport)
+            data = {'rd_mac_address': self.mac_address}
+            response = requests.post(url, json=data)
+            json_data = response.json()
+            if not json_data['data']:
+                _logger.info('Failed to get security config from server')
+                return
+
+            config = json_data['data']
+            self.system_armed = config['system_armed']
+            self.system_breached = config['system_breached']
         else:
             # add here
             url = url = 'http://{0}:{1}/system/add_connection'.format(self.serverhost, self.serverport)
             data = {'rd_mac_address': self.mac_address, 'ip_address': self.host, 'port': self.port}
-            response = requests.post(url, data=data)
+            response = requests.post(url, json=data)
             json_data = response.json()
             if not json_data['data']:
                 _logger.info('Failed to add connection on server')
                 return
 
+            # Create new security config for this device on server
+            url = 'http://{0}:{1}/system/create_securityconfig'.format(self.serverhost, self.serverport)
+            data = {'rd_mac_address': self.mac_address}
+            response = requests.post(url, json=data)
+            json_data = response.json()
+            if not json_data['data']:
+                _logger.info('Failed to create security config on server')
+                return
+
+            self.system_armed = False
+            self.system_breached = False
         _logger.info('Successfully initialized system')
 
     def _system_armed_thread(self):
@@ -290,7 +323,6 @@ class SecurityClient(object):
     def start(self):
         """starts the flask app"""
         app.run(host=self.host, port=self.port)
-        self._initialize_client()
 
     def server_app(self):
         return app
