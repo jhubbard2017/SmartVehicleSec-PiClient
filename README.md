@@ -12,6 +12,27 @@ Python client server software for the Smart Vehicle Security System (Raspberry P
 - Optional arguments include `-nh` (no hardware configuration) `-nv` (no video configuration). Only use the hardware configuration of running on the raspberry pi.
 - When developing on a local machine, use the `-dev` argument to set a known MAC address (DEVELOP).
 
+# REST API
+The server uses a REST API for system access via a client mobile app or raspberry pi client. Below are the API calls available and the required data for success responses.
+Each path includes a leading string of `http://{address}:{port}/path/to/route`
+
+### Mobile app API calls:
+- `/system/arm` : arm the associated vehicle security system
+
+  - Required data: { rd_mac_address : str }
+- `/system/disarm` : disarm the associated vehicle security system
+
+  - Required data: { rd_mac_address : str }
+- `/system/false_alarm` : set a security breach as a false alarm
+
+  - Required data: { rd_mac_address : str }
+- `/system/location` : get gps location of a specific vehicle client
+
+  - Required data: { rd_mac_address : str }
+- `/system/temperature` : get temperature data of a specific vehicle client
+
+  - Required data: { rd_mac_address : str }
+
 # Python Details
 ## first time python setup
 before beginning few prerequisite python packages must be installed and up to date. on macos:
