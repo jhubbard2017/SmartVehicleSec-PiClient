@@ -5,7 +5,7 @@
 
 import requests
 import time
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request
 from threading import Thread
 import netifaces
 
@@ -82,9 +82,8 @@ class SecurityClient(object):
         # Use inner methods so API methods can access self parameter
 
         # Error handling
-        @app.errorhandler(_FAILURE_CODE)
-        def not_found(error):
-            return jsonify({'code': _FAILURE_CODE,'data': 0})
+        def abort(message):
+            return jsonify({'code': _FAILURE_CODE, 'data': False, 'message': message})
 
         @app.route('/system/arm', methods=['POST'])
         def arm_system():
@@ -93,18 +92,21 @@ class SecurityClient(object):
             required data:
                 rd_mac_address: str
             """
-            if not request.json or not 'rd_mac_address' in request.json:
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
                 _logger.info("Error! Device not found in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Device not found in request data.")
 
             rd_mac_address = request.json['rd_mac_address']
             if rd_mac_address != self.mac_address:
                 _logger.info("Invalid MAC address in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Invalid MAC address in request data.")
 
             if self.system_armed:
                 _logger.info("System already armed")
-                abort(_FAILURE_CODE)
+                return abort("System already armed")
 
             self.system_armed = True
             thread = Thread(target=self._system_armed_thread)
@@ -118,18 +120,21 @@ class SecurityClient(object):
             required data:
                 rd_mac_address: str
             """
-            if not request.json or not 'rd_mac_address' in request.json:
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
                 _logger.info("Error! Device not found in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Device not found in request data.")
 
             rd_mac_address = request.json['rd_mac_address']
             if rd_mac_address != self.mac_address:
                 _logger.info("Invalid MAC address in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Invalid MAC address in request data.")
 
             if not self.system_armed:
                 _logger.info("System already disarmed")
-                abort(_FAILURE_CODE)
+                return abort("System already disarmed")
 
             self.system_armed = False
             return jsonify({'code': _SUCCESS_CODE,'data': True})
@@ -141,18 +146,21 @@ class SecurityClient(object):
             required data:
                 rd_mac_address: str
             """
-            if not request.json or not 'rd_mac_address' in request.json:
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
                 _logger.info("Error! Device not found in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Device not found in request data.")
 
             rd_mac_address = request.json['rd_mac_address']
             if rd_mac_address != self.mac_address:
                 _logger.info("Invalid MAC address in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Invalid MAC address in request data.")
 
             if not self.system_breached:
                 _logger.info("System not breached")
-                abort(_FAILURE_CODE)
+                return abort("System not breached")
 
             self.system_breached = False
             return jsonify({'code': _SUCCESS_CODE,'data': True})
@@ -164,16 +172,23 @@ class SecurityClient(object):
             required data:
                 rd_mac_address: str
             """
-            if not request.json or not 'rd_mac_address' in request.json:
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
                 _logger.info("Error! Device not found in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Device not found in request data.")
 
             rd_mac_address = request.json['rd_mac_address']
             if rd_mac_address != self.mac_address:
                 _logger.info("Invalid MAC address in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Invalid MAC address in request data.")
 
             data = self._fetch_location_coordinates()
+            if not data:
+                _logger.info("Failed to get GPS data")
+                return abort("Failed to get GPS data")
+
             _logger.info('Sending gps coordinates.')
             return jsonify({'code': _SUCCESS_CODE, 'data': data})
 
@@ -184,18 +199,22 @@ class SecurityClient(object):
             required data:
                 rd_mac_address: str
             """
-            if not request.json or not 'rd_mac_address' in request.json:
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
                 _logger.info("Error! Device not found in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Device not found in request data.")
 
             rd_mac_address = request.json['rd_mac_address']
             if rd_mac_address != self.mac_address:
                 _logger.info("Invalid MAC address in request data.")
-                abort(_FAILURE_CODE)
+                return abort("Invalid MAC address in request data.")
             if not self.no_hardware:
                 data = self.hwcontroller.read_thermal_sensor()
             else:
                 data = {'fahrenheit': 73.3, 'celcius': 32.0}
+
             _logger.info('Sending temperature')
             return jsonify({'code': _SUCCESS_CODE, 'data': data})
 
@@ -211,6 +230,9 @@ class SecurityClient(object):
         data = {'rd_mac_address': self.mac_address}
         response = requests.post(url, json=data)
         json_data = response.json()
+        if json_data['code'] == _FAILURE_CODE:
+            _logger.info('Failure code: [{0}]'.format(json_data['message']))
+            return
         if json_data['data']:
             # update here
             url = 'http://{0}:{1}/system/update_connection'.format(self.serverhost, self.serverport)
