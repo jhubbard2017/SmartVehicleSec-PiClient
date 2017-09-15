@@ -20,3 +20,10 @@ while True:
     except StopIteration:
         session = None
         print "GPSD has terminated"
+
+"""
+
+Data that we can use with the gps module:
+    - Altitude
+    - Speed
+"""
