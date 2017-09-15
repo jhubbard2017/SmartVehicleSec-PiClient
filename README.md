@@ -32,7 +32,10 @@ Each path includes a leading string of `http://{address}:{port}/path/to/route`
 - `/system/temperature` : get temperature data of a specific vehicle client
 
   - Required data: { rd_mac_address : str }
+- `/system/speedometer` : get speedometer data of a specific vehicle client
 
+  - Required data: { rd_mac_address : str }
+  - Returns: { speed : int, altitude : float, heading : float, climb : float }
 # Python Details
 ## first time python setup
 before beginning few prerequisite python packages must be installed and up to date. on macos:

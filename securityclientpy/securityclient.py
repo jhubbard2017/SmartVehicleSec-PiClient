@@ -218,6 +218,33 @@ class SecurityClient(object):
             _logger.info('Sending temperature')
             return jsonify({'code': _SUCCESS_CODE, 'data': data})
 
+        @app.route('/system/speedometer', methods=['POST'])
+        def get_speedometer_data():
+            """API route to get speedometer data
+
+            required data:
+                rd_mac_address: str
+            """
+            if not request.json:
+                _logger.info('No data found in request')
+                return abort('No data found in request')
+            if not 'rd_mac_address' in request.json:
+                _logger.info("Error! Device not found in request data.")
+                return abort("Device not found in request data.")
+
+            rd_mac_address = request.json['rd_mac_address']
+            if rd_mac_address != self.mac_address:
+                _logger.info("Invalid MAC address in request data.")
+                return abort("Invalid MAC address in request data.")
+
+            if not self.no_hardware:
+                data = self.hwcontroller.read_speedometer_sensor()
+            else:
+                data = {'speed': 75, 'altitude': 1024.6, 'heading': 120, 'climb': 117}
+
+            _logger.info('Sending speedometer data')
+            return jsonify({'code': _SUCCESS_CODE, 'data': data})
+
     def _initialize_client(self):
         """update ip address and port number on server database, and any other data that needs to be stored
 

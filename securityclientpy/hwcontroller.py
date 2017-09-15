@@ -176,3 +176,11 @@ class HardwareController(object):
             bool
         """
         return GPIO.input(HardwareController._MOTION_SENSOR)
+
+    def read_speedometer_sensor(self):
+        """fetches the current speedometer sensor data via gps module
+
+        returns:
+            {speed: int, altitude: float, heading: float, climb: float}
+        """
+        pass
