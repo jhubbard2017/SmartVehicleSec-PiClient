@@ -32,6 +32,7 @@ class SecurityClient(object):
     # Constants
     _DEFAULT_CAMERA_ID = 0
     _GEOIP_HOSTNAME = "http://freegeoip.net/json"
+    _TEMPERATURE_LIMIT = 85.0
 
     # status LED flash signals
     _FLASH_NEW_DEVICE = 3
@@ -339,7 +340,7 @@ class SecurityClient(object):
                     system_breach_thread = Thread(target=self._system_breached_thread)
                     system_breach_thread.start()
 
-                    if temp['fahrenheit'] >= 85.0:
+                    if temp['fahrenheit'] >= SecurityClient._TEMPERATURE_LIMIT:
                         # Todo: send motification to mobile app
                         pass
         _logger.info('System disarmed')
