@@ -16,7 +16,6 @@ setup(
         'xmltodict',
         'requests',
         'PyYAML',
-        'opencv-python',
         'imutils',
         'flask',
         'configparser',

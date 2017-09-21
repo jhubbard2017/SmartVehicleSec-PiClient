@@ -66,6 +66,12 @@ OpenCV is used for video capture. However, the installation methods are differen
 
 - For MacOS, use `pip install opencv-python`
 - For linux, use `sudo apt-get install libopencv-dev python-opencv`
+- Also on linux, you need to symlink opencv into the env:
+
+```shell
+$ cd venv-securityclientpy/lib/python2.7/site-packages/
+$ ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
+```
 
 The packages installed into the virtualenv are dictated by two files
 ### `requirements.txt`
