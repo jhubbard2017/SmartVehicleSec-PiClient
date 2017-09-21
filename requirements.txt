@@ -2,7 +2,6 @@
 xmltodict
 requests
 PyYAML
-numpy
 imutils
 flask
 configparser
