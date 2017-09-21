@@ -12,6 +12,10 @@ testpdb:
 develop:
 	tox -edevelop
 
+opencv:
+    cd venv-securityclientpy/lib/python2.7/site-packages/
+    ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
+
 prod:
 	tox -evenv
 
