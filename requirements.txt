@@ -3,6 +3,7 @@ xmltodict
 requests
 PyYAML
 imutils
+numpy
 flask
 configparser
 netifaces
