@@ -3,7 +3,6 @@ xmltodict
 requests
 PyYAML
 numpy
-opencv-python
 imutils
 flask
 configparser

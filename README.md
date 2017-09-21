@@ -62,6 +62,11 @@ To begin using the virtual:
 $ source venv-securityserverpy/bin/activate
 ```
 
+OpenCV is used for video capture. However, the installation methods are different for certain systems:
+
+- For MacOS, use `pip install opencv-python`
+- For linux, use `sudo apt-get install libopencv-dev python-opencv`
+
 The packages installed into the virtualenv are dictated by two files
 ### `requirements.txt`
 In this file, all packages required to run the tool should be listed. Specify the exact version of the packages so that changes in dependencies don't break your tool.
