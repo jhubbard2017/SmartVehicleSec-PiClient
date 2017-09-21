@@ -14,7 +14,7 @@ develop:
 
 opencv:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
-	ln -s /usr/lib/python2.7/site-packages/cv2.so cv2.so
+	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
 
 prod:
 	tox -evenv
