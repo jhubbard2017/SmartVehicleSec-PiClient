@@ -321,16 +321,41 @@ class SecurityClient(object):
         _logger.info('System will arm in 5 secs')
         time.sleep(5)
         _logger.info('System armed')
+        motion_already_detected = self._check_motion_detection()
+        if motion_already_detected:
+            self.thread_for_motion_already_detected()
+        else:
+            self.thread_for_motion_not_already_detected()
+
+    def thread_for_motion_already_detected(self):
+        """method that runs if motion is already detected"""
         while self.system_armed:
             if not self.no_hardware and not self.no_video:
-                motion_detected = self.hwcontroller.read_motion_sensor()
-                noise_detected = self.hwcontroller.read_noise_sensor()
-                if motion_detected or noise_detected:
+                shock_detected = self.hwcontroller.read_shock_sensor()
+                temp = self.hwcontroller.read_thermal_sensor()
+                if shock_detected or temp['fahrenheit'] >= 85.0:
                     self.system_breached = True
                     self.hwcontroller.status_led_flash_start()
                     system_breach_thread = Thread(target=self._system_breached_thread)
                     system_breach_thread.start()
-            time.sleep(0.2)
+
+                    if temp['fahrenheit'] >= 85.0:
+                        # Todo: send motification to mobile app
+                        pass
+        _logger.info('System disarmed')
+
+    def thread_for_motion_not_already_detected(self):
+        """method that runs if motion is not already detected at the start of arming the system"""
+        while self.system_armed:
+            if not self.no_hardware and not self.no_video:
+                motion_detected = self.hwcontroller.read_motion_sensor()
+                noise_detected = self.hwcontroller.read_noise_sensor()
+                shock_detected = self.hwcontroller.read_shock_sensor()
+                if motion_detected or noise_detected or shock_detected:
+                    self.system_breached = True
+                    self.hwcontroller.status_led_flash_start()
+                    system_breach_thread = Thread(target=self._system_breached_thread)
+                    system_breach_thread.start()
         _logger.info('System disarmed')
 
     def _system_breached_thread(self):
@@ -389,3 +414,19 @@ class SecurityClient(object):
             "longitude": float(json_data["longitude"])
         }
         return position
+
+    def _check_motion_detection(self):
+        """checks if motion is detected for a time of 5 seconds before arming system
+
+        returns:
+            bool
+        """
+        motion_detected = False
+        if not self.no_hardware:
+            for x in range(5):
+                motion_detected = self.hwcontroller.read_motion_sensor()
+                time.sleep(1)
+                if motion_detected:
+                    break
+
+        return motion_detected
