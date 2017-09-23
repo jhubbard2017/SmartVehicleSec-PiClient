@@ -65,7 +65,7 @@ $ source venv-securityserverpy/bin/activate
 OpenCV is used for video capture. However, the installation methods are different for certain systems:
 
 - For MacOS, use `pip install opencv-python`
-- For linux, use `sudo apt-get install libopencv-dev python-opencv`
+- For linux, use `make opencv_install_linux`
 - Also on linux, you need to symlink opencv into the env:
 
 ```shell
