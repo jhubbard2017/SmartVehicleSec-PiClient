@@ -7,6 +7,7 @@
 import os
 import glob
 import time
+# import gps
 
 from securityclientpy import _logger
 
@@ -43,6 +44,10 @@ class HardwareController(object):
         GPIO.setup(HardwareController._NOISE_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # Set up status led
         GPIO.setup(HardwareController._STATUS_LED, GPIO.OUT)
+
+        # Listen on port 2947 (gpsd) of localhost
+        self.gps_session = gps.gps("localhost", "2947")
+        self.gps_session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
 
     def status_led_on(self):
         """turn on status led
@@ -183,4 +188,44 @@ class HardwareController(object):
         returns:
             {speed: int, altitude: float, heading: float, climb: float}
         """
-        pass
+        data = {}
+        try:
+            report = self.gps_session.next()
+            if report['class'] == 'TPV':
+                data = {
+                    'speed': report.speed,
+                    'altitude': report.altitude,
+                    'heading': report.heading,
+                    'climb': report.climb
+                }
+        except KeyError:
+            pass
+        except KeyboardInterrupt:
+            pass
+        except StopIteration:
+            self.gps_session = None
+
+        return data
+
+    def read_gps_sensor(self):
+        """fetches the current gps sensor data via gps module
+
+        returns:
+            {latitude, longitude}
+        """
+        data = {}
+        try:
+            report = self.gps_session.next()
+            if report['class'] == 'TPV':
+                data = {
+                    'latitude': report.latitude,
+                    'longitude': report.longitude
+                }
+        except KeyError:
+            pass
+        except KeyboardInterrupt:
+            pass
+        except StopIteration:
+            self.gps_session = None
+
+        return data

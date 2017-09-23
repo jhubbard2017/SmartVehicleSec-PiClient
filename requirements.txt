@@ -4,6 +4,7 @@ requests
 PyYAML
 imutils
 numpy
+overpy
 flask
 configparser
 netifaces

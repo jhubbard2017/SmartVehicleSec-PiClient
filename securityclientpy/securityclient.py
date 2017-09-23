@@ -12,6 +12,7 @@ import netifaces
 from securityclientpy import _logger
 from securityclientpy.hwcontroller import HardwareController
 from securityclientpy.videostreamer import VideoStreamer
+from securityclientpy.speed_limit import SpeedLimit
 
 _SUCCESS_CODE = 201
 _FAILURE_CODE = 404
@@ -79,6 +80,8 @@ class SecurityClient(object):
         self.system_armed = False
         self.system_breached = False
         self._initialize_client()
+
+        self.speed_limit_checker = SpeedLimit(self.serverhost, self.serverport, self.mac_address, self.no_hardware)
 
         # Use inner methods so API methods can access self parameter
 
@@ -164,7 +167,7 @@ class SecurityClient(object):
                 return abort("System not breached")
 
             self.system_breached = False
-            return jsonify({'code': _SUCCESS_CODE,'data': True})
+            return jsonify({'code': _SUCCESS_CODE, 'data': True})
 
         @app.route('/system/location', methods=['POST'])
         def get_gps_location():
@@ -284,7 +287,7 @@ class SecurityClient(object):
             self.system_breached = config['system_breached']
         else:
             # add here
-            url = url = 'http://{0}:{1}/system/add_connection'.format(self.serverhost, self.serverport)
+            url = 'http://{0}:{1}/system/add_connection'.format(self.serverhost, self.serverport)
             data = {'rd_mac_address': self.mac_address, 'ip_address': self.host, 'port': self.port}
             response = requests.post(url, json=data)
             json_data = response.json()
@@ -408,12 +411,16 @@ class SecurityClient(object):
         returns:
             dict -> {'latitude': float, 'longitude': float}
         """
-        geo = requests.get(self._GEOIP_HOSTNAME)
-        json_data = geo.json()
-        position = {
-            "latitude": float(json_data["latitude"]),
-            "longitude": float(json_data["longitude"])
-        }
+        if not self.no_hardware:
+            position = self.hwcontroller.read_gps_sensor()
+        else:
+            geo = requests.get(self._GEOIP_HOSTNAME)
+            json_data = geo.json()
+            position = {
+                "latitude": float(json_data["latitude"]),
+                "longitude": float(json_data["longitude"])
+            }
+
         return position
 
     def _check_motion_detection(self):
