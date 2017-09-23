@@ -69,7 +69,7 @@ OpenCV is used for video capture. However, the installation methods are differen
 - Also on linux, you need to symlink opencv into the env:
 
 ```shell
-$ make opencv_link_linux_pi (for ubuntu make)
+$ make opencv_link_linux_pi (for ubuntu mate)
 $ make opencv_link_linux_desktop (for ubuntu)
 ```
 
