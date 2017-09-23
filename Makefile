@@ -12,6 +12,9 @@ testpdb:
 develop:
 	tox -edevelop
 
+opencv_install_linux:
+	sudo apt-get install libopencv-dev python-opencv
+
 opencv_linux:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
 	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
