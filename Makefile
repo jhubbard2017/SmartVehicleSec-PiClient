@@ -15,11 +15,15 @@ develop:
 opencv_install_linux:
 	sudo apt-get install libopencv-dev python-opencv
 
-opencv_linux:
+opencv_link_linux_pi:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
 	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
 
-opencv_mac:
+opencv_link_linux_desktop:
+    cd venv-securityclientpy/lib/python2.7/site-packages/
+    ln -s /usr/lib/python2.7/dist-packages/cv2.x86_64-linux-gnu.so cv2.so
+
+opencv_install_mac:
 	pip install opencv-python
 
 install_gpsd:
