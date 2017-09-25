@@ -68,7 +68,7 @@ class SpeedLimit(object):
 
         # fetch all ways and nodes
         result = api.query("""
-            way(around:""" + SpeedLimit._RADIUS + """,""" + latitude  + """,""" + longitude  + """) ["maxspeed"];
+            way(around:""" + str(SpeedLimit._RADIUS) + """,""" + str(latitude) + """,""" + str(longitude)  + """) ["maxspeed"];
                 (._;>;);
                     out body;
                         """)

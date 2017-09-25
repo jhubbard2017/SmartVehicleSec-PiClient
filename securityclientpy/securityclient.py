@@ -64,6 +64,7 @@ class SecurityClient(object):
         # Set up different configs if needed
         if not self.no_hardware:
             self.hwcontroller = HardwareController()
+            self.speed_limit_checker = SpeedLimit(self.serverhost, self.serverport, self.mac_address, self.no_hardware)
         if not self.no_video:
             self.videostream = VideoStreamer(SecurityServer._DEFAULT_CAMERA_ID)
 
@@ -80,8 +81,6 @@ class SecurityClient(object):
         self.system_armed = False
         self.system_breached = False
         self._initialize_client()
-
-        self.speed_limit_checker = SpeedLimit(self.serverhost, self.serverport, self.mac_address, self.no_hardware)
 
         # Use inner methods so API methods can access self parameter
 
