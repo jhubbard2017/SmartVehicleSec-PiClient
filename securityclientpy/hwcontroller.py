@@ -3,7 +3,7 @@
 # hardware controller used to control gpio and cameras
 #
 
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import os
 import glob
 import time

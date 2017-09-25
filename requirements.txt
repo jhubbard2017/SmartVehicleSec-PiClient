@@ -8,3 +8,4 @@ overpy
 flask
 configparser
 netifaces
+RPi.GPIO
