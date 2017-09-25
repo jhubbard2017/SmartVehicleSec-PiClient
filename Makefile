@@ -20,7 +20,7 @@ symlink_linux_pi:
 	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
 
 make gpio:
-	pip install RPi.GIO
+	pip install RPi.GPIO
 
 opencv_link_linux_desktop:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
