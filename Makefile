@@ -15,16 +15,14 @@ develop:
 opencv_install_linux:
 	sudo apt-get install libopencv-dev python-opencv
 
-symlink_linux_pi:
-	cd venv-securityclientpy/lib/python2.7/site-packages/
-	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
+link_lpi:
+	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so venv-securityclientpy/lib/python2.7/site-packages/cv2.so
 
 make gpio:
 	pip install RPi.GPIO
 
-opencv_link_linux_desktop:
-	cd venv-securityclientpy/lib/python2.7/site-packages/
-	ln -s /usr/lib/python2.7/dist-packages/cv2.x86_64-linux-gnu.so cv2.so
+link_ldesktop:
+	ln -s /usr/lib/python2.7/dist-packages/cv2.x86_64-linux-gnu.so venv-securityclientpy/lib/python2.7/site-packages/cv2.so
 
 opencv_install_mac:
 	pip install opencv-python
