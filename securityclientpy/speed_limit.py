@@ -3,6 +3,7 @@
 # Logic for getting the speed limit for a particular set of gps coordinates and comparing to vehicle speed limit
 #
 
+import RPi.GPIO as GPIO
 import overpy
 import sys
 import time
@@ -26,8 +27,11 @@ class SpeedLimit(object):
         self.host = host
         self.port = port
         self.mac_address = mac_address
-        self.hwcontroller = HardwareController()
         self.no_hardware = no_hardware
+
+        if not self.no_hardware:
+            self.hwcontroller = HardwareController()
+
         self.thread_running = True
 
         thread = Thread(target=self.main_speed_checking_thread)
