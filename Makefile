@@ -18,7 +18,9 @@ opencv_install_linux:
 symlink_linux_pi:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
 	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so cv2.so
-	ln -s /usr/lib/python2.7/dist-packages/RPi/_GPIO.arm-linux-gnueabihf.so GPIO.so
+
+make gpio:
+	pip install RPi.GIO
 
 opencv_link_linux_desktop:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
