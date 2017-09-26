@@ -23,19 +23,15 @@ class SpeedLimit(object):
     _RADIUS = 100
     _SLEEP_SECONDS = 30
 
-    def __init__(self, host, port, mac_address, no_hardware):
+    def __init__(self, host, port, mac_address):
         self.host = host
         self.port = port
         self.mac_address = mac_address
-        self.no_hardware = no_hardware
-
-        if not self.no_hardware:
-            self.hwcontroller = HardwareController()
-
-        self.thread_running = True
+        self.hwcontroller = HardwareController()
 
         thread = Thread(target=self.main_speed_checking_thread)
         thread.start()
+        self.thread_running = True
 
     def main_speed_checking_thread(self):
         """main thread for keeping up with the speed and speed limit
@@ -90,12 +86,8 @@ class SpeedLimit(object):
         returns:
             float
         """
-        if not self.no_hardware:
-            speedometer_data = self.hwcontroller.read_speedometer_sensor()
-            current_speed = speedometer_data['speed']
-        else:
-            current_speed = 40.0
-
+        speedometer_data = self.hwcontroller.read_speedometer_sensor()
+        current_speed = speedometer_data['speed']
         return current_speed
 
     def get_gps_coordinates(self):
@@ -104,11 +96,7 @@ class SpeedLimit(object):
         returns:
             {latitude, longitude}
         """
-        if not self.no_hardware:
-            gps_data = self.hwcontroller.read_gps_sensor()
-        else:
-            gps_data = {'latitude': 32.0, 'longitude': -122.78}
-
+        gps_data = self.hwcontroller.read_gps_sensor()
         return gps_data
 
     def is_over_speed_limit(self, speed, speed_limit):
