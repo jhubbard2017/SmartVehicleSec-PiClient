@@ -9,17 +9,20 @@ test:
 testpdb:
 	tox -epdb
 
-develop:
-	tox -edevelop
+develop_osx:
+	tox -edevelop_osx
+
+develop_linux:
+	tox -edevelop_linux
+
+develop_pi:
+	tox -edevelop_pi
+
+prod:
+	tox -evenv
 
 opencv_install_linux:
 	sudo apt-get install libopencv-dev python-opencv
-
-link_lpi:
-	ln -s /usr/lib/python2.7/dist-packages/cv2.arm-linux-gnueabihf.so venv-securityclientpy/lib/python2.7/site-packages/cv2.so
-
-link_ldesktop:
-	ln -s /usr/lib/python2.7/dist-packages/cv2.x86_64-linux-gnu.so venv-securityclientpy/lib/python2.7/site-packages/cv2.so
 
 opencv_install_mac:
 	pip install opencv-python
@@ -30,9 +33,6 @@ install_gpsd:
 gpsd_linux:
 	cd venv-securityclientpy/lib/python2.7/site-packages/
 	ln -s /usr/lib/python2.7/dist-packages/gps.so gps.so
-
-prod:
-	tox -evenv
 
 clean:
 	rm -rf build/ dist/ securityserverpy.egg-info/ .tox/ venv*/
