@@ -29,6 +29,9 @@ class RestAPI(object):
     def __init__(self, host, port, serverhost, serverport, no_hardware, no_video, device_id):
         """Constructor method"""
 
+        self.host = host
+        self.port = port
+
         self.security_threads = SecurityThreads(serverhost, serverport, no_hardware, no_video, device_id)
         self.error_handling = APIErrorHandling(device_id)
 
@@ -151,7 +154,7 @@ class RestAPI(object):
 
     def start(self):
         """method to start the flask server"""
-        app.run(host=host, port=port)
+        app.run(host=self.host, port=self.port)
 
     def save_settings(self):
         """saves settings before quiting program"""
