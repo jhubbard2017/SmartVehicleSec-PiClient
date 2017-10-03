@@ -1,0 +1,12 @@
+--extra-index-url https://pypi.python.org/pypi
+xmltodict
+requests
+PyYAML
+imutils
+numpy
+overpy
+opencv-python
+flask
+configparser
+netifaces
+fakeRPiGPIO

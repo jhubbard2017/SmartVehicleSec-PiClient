@@ -51,12 +51,12 @@ def _config_from_args():
 config = _config_from_args()
 port = int(config.port)
 serverport = int(config.serverport)
-sec_server = SecurityClient(host=config.host, port=port, serverhost=config.serverhost, serverport=serverport,
+sec_client = SecurityClient(host=config.host, port=port, serverhost=config.serverhost, serverport=serverport,
                             no_hardware=config.no_hardware, no_video=config.no_video, dev=config.dev)
 
 def main_thread():
     """main thread to start up the server"""
-    sec_server.start()
+    sec_client.start()
 
 def main():
     """ main function
@@ -71,7 +71,7 @@ def main():
         text = raw_input()
         if text == "stop":
             _logger.info("Shutting down. Saving settings.")
-            sec_server.save_settings()
+            sec_client.save_settings()
             sys.exit(0)
 
 if __name__ == '__main__':
