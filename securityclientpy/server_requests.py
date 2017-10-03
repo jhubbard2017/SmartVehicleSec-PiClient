@@ -30,10 +30,10 @@ class ServerRequests(object):
             dict
         """
         url = '{0}/{1}'.format(self.url, path)
-        data = self.data
+        request_data = self.data
         for key, value in data.iteritems():
-            data[key] = value
-        response = requests.post(url, json=data)
+            request_data[key] = value
+        response = requests.post(url, json=request_data)
         if not response.json():
             return None
 

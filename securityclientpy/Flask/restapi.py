@@ -52,7 +52,7 @@ class RestAPI(object):
 
             # Arm system
             self.security_threads.arm_system()
-            return jsonify({'code': _SUCCESS_CODE,'data': True})
+            return jsonify({'code': _SUCCESS_CODE, 'data': True})
 
         @app.route('/system/disarm', methods=['POST'])
         def disarm_system():
