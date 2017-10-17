@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 #
-# module for controlling all security threads
+# security threads module
 #
 
 from threading import Thread
 import time
 
-from securityclientpy import _logger
+from securityclientpy import _logger, host, port, serverport
 from securityclientpy.hwcontroller import HardwareController
 from securityclientpy.videostreamer import VideoStreamer
 from securityclientpy.server_requests import ServerRequests
 
 
 class SecurityThreads(object):
-    """module for controlling all security threads"""
 
     # Constants
     _DEFAULT_CAMERA_ID = 0
@@ -22,7 +21,7 @@ class SecurityThreads(object):
     _FLASH_SYSTEM_DISARMED = 3
     _FLASH_FALSE_ALARM = 2
 
-    def __init__(self, serverhost, serverport, no_hardware, no_video, device_id):
+    def __init__(self, no_hardware, no_video, serverhost, system_id):
         """constructor method"""
         self._system_armed = False
         self._system_breached = False
@@ -31,7 +30,7 @@ class SecurityThreads(object):
         self.initial_motion_detected = False
         self.speed_checker_thread_running = False
 
-        self.server_requests = ServerRequests(serverhost, serverport, device_id)
+        self.server_requests = ServerRequests(serverhost, system_id)
 
         # Create objects for different config/development levels
         self.hwcontroller = HardwareController(no_hardware)
@@ -74,7 +73,7 @@ class SecurityThreads(object):
         motion = None
         noise = None
 
-        self.initial_motion_detected = self.initial_motion_detected()
+        self.initial_motion_detected = self.initial_motion_is_detected()
         while self._system_armed:
             if not self.no_hardware:
                 if self.initial_motion_detected:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# hardware controller used to control gpio and cameras
+# hardware controller module
 #
 
 import RPi.GPIO as GPIO
@@ -14,7 +14,6 @@ from securityclientpy import _logger
 
 
 class HardwareController(object):
-    """controller class for hardware components"""
 
     _GPIO_PINS = {'panic': 32, 'shock': 27, 'noise': 12, 'motion': 22, 'led': 17}
     _THERMAL_SENSOR_BASE_DIR = '/sys/bus/w1/devices/'
@@ -137,7 +136,7 @@ class HardwareController(object):
             float, float
         """
         if self.no_hardware:
-            return HardwareController._SIMULATION_TEMPERATURE_DATA
+            return self._TEMPERATURE_SIMULATION_DATA
 
         ctemp = 0.0
         ftemp = 0.0
@@ -202,7 +201,7 @@ class HardwareController(object):
             {speed: int, altitude: float, heading: float, climb: float}
         """
         if self.no_hardware:
-            return HardwareController._SPEEDOMETER_SIMLUATION_DATA
+            return self._SPEEDOMETER_SIMLUATION_DATA
 
         data = {}
         try:

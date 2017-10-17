@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 #
-# module for handling api request made to server
+# server requests module
 #
 
 import requests
 
-from securityclientpy import _logger
+from securityclientpy import _logger, host, port, serverport
+from securityclientpy.routes import _FAILURE_CODE
 
 
 class ServerRequests(object):
     """module for handling api request made to server"""
 
-    _SUCCESS_CODE = 201
-    _FAILURE_CODE = 404
-
-    def __init__(self, serverhost, serverport, device_id):
+    def __init__(self, serverhost, system_id):
         """constructor method"""
-        self.url = 'http://{0}:{1}/system'.format(serverhost, serverport)
-        self.data = {'rd_mac_address': device_id}
+        self.url = 'http://{0}:{1}'.format(serverhost, serverport)
+        self.data = {'system_id': system_id}
 
     def request(self, path, data={}):
         """method to send request to server and get the response
@@ -45,10 +43,10 @@ class ServerRequests(object):
         returns:
             bool
         """
-        path = 'update_connection'
-        data = {'ip_address': self.host, 'port': self.port}
+        path = 'connections/update'
+        data = {'host': host, 'port': port}
         response = self.request(path, data)
-        if response['code'] == self._FAILURE_CODE:
+        if response['code'] == _FAILURE_CODE:
             _logger.info('Failed to update connection: [{0}]'.format(response['message']))
             return False
 
@@ -60,10 +58,10 @@ class ServerRequests(object):
         returns:
             bool
         """
-        path = 'add_connection'
-        data = {'ip_address': self.host, 'port': self.port}
+        path = 'connections/add'
+        data = {'host': host, 'port': port}
         response = self.request(path, data)
-        if not response['code'] == self._FAILURE_CODE:
+        if response['code'] == _FAILURE_CODE:
             _logger.info('Failed to add connection: [{0}]'.format(response['message']))
             return False
 
@@ -75,14 +73,13 @@ class ServerRequests(object):
         returns:
             bool
         """
-        path = 'get_connection'
+        path = 'connections/get'
         response = self.request(path)
-        if response['code'] == self._FAILURE_CODE:
+        if response['code'] == _FAILURE_CODE:
             _logger.info('Failed to get connection: [{0}]'.format(response['message']))
             return None
 
-        status = response['data']
-        return status
+        return response['data']
 
     def get_security_config(self):
         """method to send server request for updating local security config with that which is on the server
@@ -90,25 +87,24 @@ class ServerRequests(object):
         returns:
             dict(system_armed, system_breached)
         """
-        path = 'security_config'
+        path = 'security/get_config'
         response = self.request(path)
-        if not response['code'] == self._FAILURE_CODE:
+        if response['code'] == _FAILURE_CODE:
             _logger.info('Failed to get security config: [{0}]'.format(response['message']))
             return None
 
-        config = response['data']
-        return config
+        return response['data']
 
-    def create_security_config(self):
+    def add_security_config(self):
         """method to send server request for creating a new security config
 
         returns:
             bool
         """
-        path = 'create_securityconfig'
+        path = 'security/add_config'
         response = self.request(path)
-        if response['code'] == self._FAILURE_CODE:
-            _logger.info('Failed to create security config: [{0}]'.format(response['message']))
+        if response['code'] == _FAILURE_CODE:
+            _logger.info('Failed to add security config: [{0}]'.format(response['message']))
             return False
 
         return True
@@ -123,7 +119,7 @@ class ServerRequests(object):
         message = 'You are exceeding the speed limit'
         data = {'message': message}
         response = self.request(path, data)
-        if  response['code'] == self._FAILURE_CODE:
+        if response['code'] == _FAILURE_CODE:
             _logger.info('Failed to send speed limit alert: [{0}]'.format(response['message']))
             return False
 

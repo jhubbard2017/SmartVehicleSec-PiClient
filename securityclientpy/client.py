@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# logic for establing server communication, processing data, and sending data to clients
+# client module
 #
 
-from securityclientpy import _logger
-from securityclientpy.Flask.restapi import RestAPI
-from securityclientpy.get_device_id import get_mac_address
+from securityclientpy import _logger, get_mac_address, host, port
 from securityclientpy.server_requests import ServerRequests
+from securityclientpy.routes.security import Security
+from securityclientpy.routes.system import System
+from securityclientpy.routes import app
 
 
-class SecurityClient(object):
+class Client(object):
     """security client class"""
 
-    def __init__(self, host, port, serverhost, serverport, no_hardware=False, no_video=False, dev=False, testing=False):
+    def __init__(self, serverhost, no_hardware=False, no_video=False, dev=False, testing=False):
         """constructor method"""
+        system_id = self.get_device_id(dev, testing)
+        self.server_requests = ServerRequests(serverhost, system_id)
 
-        self.host = host
-        self.port = port
-        self.serverhost = serverhost
-        self.serverport = serverport
+        # Routes
+        self.security = Security(no_hardware, no_video, serverhost, system_id)
+        self.system = System(no_hardware)
 
-        device_id = self.get_device_id(dev, testing)
-        self.restapi = RestAPI(host, port, serverhost, serverport, no_hardware, no_video, device_id)
-        self.server_requests = ServerRequests(serverhost, serverport, device_id)
+        # Initialize system with server
         self._initialize_client()
 
     def _initialize_client(self):
@@ -37,23 +37,23 @@ class SecurityClient(object):
             if not config: return
 
             # Update local security configs
-            self.restapi.security_threads.system_armed = config['system_armed']
-            self.restapi.security_threads.system_breached = config['system_breached']
+            self.security.security_threads.system_armed = config['system_armed']
+            self.security.security_threads.system_breached = config['system_breached']
         else:
             if not self.server_requests.add_connection(): return
-            if not self.server_requests.create_security_config(): return
+            if not self.server_requests.add_security_config(): return
 
         _logger.info('Successfully initialized system')
 
     def start(self):
-        """method to start the server"""
-        self.restapi.start()
+        """method to start the flask server"""
+        app.run(host=host, port=port)
 
     def save_settings(self):
         """method is fired when the user disconnects or the socket connection is broken"""
 
         _logger.info('Saving security session.')
-        self.restapi.save_settings()
+        self.security.security_threads.quit_successfully()
 
     def get_device_id(self, dev, testing):
         """method to get particular device id for different development levels
