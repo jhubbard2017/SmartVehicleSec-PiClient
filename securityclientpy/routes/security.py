@@ -18,7 +18,8 @@ class Security(object):
     _FALSE_ALARM_KEY = 'false_alarm'
 
     def __init__(self, no_hardware, no_video, serverhost, system_id):
-        self.security_threads = SecurityThreads(no_hardware, no_video, serverhost, system_id)
+        self.system_id = system_id
+        self.security_threads = SecurityThreads(no_hardware, no_video, serverhost, self.system_id)
 
         # Use inner methods so self pointer can be accessed
 
@@ -30,7 +31,7 @@ class Security(object):
                 system_id: str
             """
             status, error = verify_request(
-                request.json, config_key=self._ARM_SYSTEM_KEY, config_value=False
+                request.json, self.system_id, config_key=self._ARM_SYSTEM_KEY, config_value=False
             )
             if not status: return error_response(error)
 
@@ -45,7 +46,7 @@ class Security(object):
                 system_id: str
             """
             status, error = verify_request(
-                request.json, config_key=self._DISARM_SYSTEM_KEY, config_value=True
+                request.json, self.system_id, config_key=self._DISARM_SYSTEM_KEY, config_value=True
             )
             if not status: return error_response(error)
 
@@ -60,7 +61,7 @@ class Security(object):
                 system_id: str
             """
             status, error = verify_request(
-                request.json, config_key=self._FALSE_ALARM_KEY, config_value=True
+                request.json, self.system_id, config_key=self._FALSE_ALARM_KEY, config_value=True
             )
             if not status: return error_response(error)
 

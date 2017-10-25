@@ -25,7 +25,7 @@ _CONFIG_ERROR_VALUES = {
     'false_alarm': {'value': False, 'message': 'System is not breached'}
 }
 
-def verify_request(json, config_key=None, config_value=None):
+def verify_request(json, system_id, config_key=None, config_value=None):
     """checks the request to arm the system for errors
 
     returns:
@@ -39,8 +39,8 @@ def verify_request(json, config_key=None, config_value=None):
         error_message = 'No device found in request'
         return (False, error_message)
 
-    system_id = json['system_id']
-    if system_id != self.system_id:
+    user_system_id = json['system_id']
+    if user_system_id != system_id:
         error = 'Invalid system ID'
         return (False, error)
 

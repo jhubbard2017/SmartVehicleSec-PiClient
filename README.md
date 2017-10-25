@@ -12,6 +12,13 @@ Python client server software for the Smart Vehicle Security System (Raspberry P
 - Optional arguments include `-nh` (no hardware configuration) `-nv` (no video configuration). Only use the hardware configuration of running on the raspberry pi.
 - When developing on a local machine, use the `-dev` argument to set a known MAC address (DEVELOP).
 
+# GPIO Connections
+- Panic push button: `pin 32`
+- Shock sensor: `pin 27`
+- Noise sensor: `pin 12`
+- Motion sensor: `pin 22`
+- led: `pin 17`
+
 # REST API
 The server uses a REST API for system access via a client mobile app or raspberry pi client. Below are the API calls available and the required data for success responses.
 Each path includes a leading string of `http://{address}:3002/path/to/route`

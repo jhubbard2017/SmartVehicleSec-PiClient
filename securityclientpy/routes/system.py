@@ -13,7 +13,8 @@ class System(object):
 
     _ROOT_PATH = '/system'
 
-    def __init__(self, no_hardware):
+    def __init__(self, no_hardware, system_id):
+        self.system_id = system_id
         self.hwcontroller = HardwareController(no_hardware)
 
         # Use inner methods so self pointer can be accessed
@@ -25,7 +26,7 @@ class System(object):
             required data:
                 system_id: str
             """
-            status, error = verify_request(request.json)
+            status, error = verify_request(request.json, self.system_id)
             if not status: return error_response(error)
 
             data = self.hwcontroller.read_gps_sensor()
@@ -40,7 +41,7 @@ class System(object):
             required data:
                 system_id: str
             """
-            status, error = verify_request(request.json)
+            status, error = verify_request(request.json, self.system_id)
             if not status: return error_response(error)
 
             data = self.hwcontroller.read_temperature_sensor()
@@ -55,10 +56,10 @@ class System(object):
             required data:
                 system_id: str
             """
-            status, error = verify_request(request.json)
+            status, error = verify_request(request.json, self.system_id)
             if not status: return error_response(error)
 
-            data = self.hwcontroller.read_temperature_sensor()
+            data = self.hwcontroller.read_speedometer_sensor()
             if not data: return error_response('Unable to get speedometer data')
 
             return success_response(request.path, data=data)

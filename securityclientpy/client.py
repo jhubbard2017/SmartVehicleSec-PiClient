@@ -15,12 +15,13 @@ class Client(object):
 
     def __init__(self, serverhost, no_hardware=False, no_video=False, dev=False, testing=False):
         """constructor method"""
-        system_id = self.get_device_id(dev, testing)
-        self.server_requests = ServerRequests(serverhost, system_id)
+        self.system_id = self.get_device_id(dev, testing)
+        _logger.info('System ID = {0}'.format(self.system_id))
+        self.server_requests = ServerRequests(serverhost, self.system_id)
 
         # Routes
-        self.security = Security(no_hardware, no_video, serverhost, system_id)
-        self.system = System(no_hardware)
+        self.security = Security(no_hardware, no_video, serverhost, self.system_id)
+        self.system = System(no_hardware, self.system_id)
 
         # Initialize system with server
         self._initialize_client()
@@ -67,7 +68,7 @@ class Client(object):
         """
         if testing:
             return 'TESTING'
-        if dev:
+        elif dev:
             return 'DEVELOP'
         else:
             return get_mac_address()
