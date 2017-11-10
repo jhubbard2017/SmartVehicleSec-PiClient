@@ -39,7 +39,7 @@ def main():
     sensor_test = motionDetectionTest()
     thread = Thread(target=sensor_test.check_motion)
     thread.start()
-    time.sleep(10)
+    time.sleep(20)
     sensor_test.thread_running = False
     print("Program terminated...")
 
