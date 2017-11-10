@@ -15,7 +15,6 @@ class motionDetectionTest(object):
         # Constructor method
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.MOTION_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        self.motion_count = 0
         self.thread_running = True
 
     def read_motion_sensor(self):
@@ -33,7 +32,7 @@ class motionDetectionTest(object):
                 print("Motion detected")
             else:
                 print("No motion detected")
-            time.sleep(1)
+            time.sleep(0.5)
 
 def main():
     print("Checking motion...")
