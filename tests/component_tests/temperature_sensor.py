@@ -63,7 +63,7 @@ class temperatureDetectionTest(object):
         while self.thread_running:
             ftemp, ctemp = self.read_temperature_sensor()
             print("Temperature: {0} F, {1} C".format(ftemp, ctemp))
-            time.sleep(1)
+            time.sleep(0.5)
 
 
 def main():
@@ -71,7 +71,7 @@ def main():
     sensor_test = temperatureDetectionTest()
     thread = Thread(target=sensor_test.check_temperature)
     thread.start()
-    time.sleep(10)
+    time.sleep(15)
     sensor_test.thread_running = False
     print("Program terminated...")
 
