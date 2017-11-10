@@ -36,7 +36,7 @@ class statusLEDTest(object):
 
 def main():
     test = statusLEDTest()
-    while i in range(10):
+    for i in range(10):
         status = test.get_led_status()
         if status:
             test.set_led_output(False)
