@@ -44,5 +44,7 @@ def main():
             test.set_led_output(True)
         time.sleep(1)
 
+    GPIO.cleanup()
+
 if __name__ == '__main__':
     main()
