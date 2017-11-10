@@ -53,7 +53,7 @@ class temperatureDetectionTest(object):
 
         equal_pos = data[1].find('t=')
         if equal_pos != -1:
-            data_string = lines[1][equal_pos+2:]
+            data_string = data[1][equal_pos+2:]
             ctemp = float(data_string) / 1000.0
             ftemp = ctemp * 9.0 / 5.0 + 32.0
 
