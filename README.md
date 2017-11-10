@@ -6,18 +6,43 @@ Python client server software for the Smart Vehicle Security System (Raspberry P
 - this example assumes a python virtual env has already been established - see details on virtual env
 - this example does not trigger any calls to hardware devices or video devices
 ```shell
-(venv-securityclientpy) $ securityclientpy -i ip_address -p port 
+(venv-securityclientpy) $ securityclientpy -si host 
 ```
 - the required arguments are the ip address and port number. These two need to be specified to start the program.
 - Optional arguments include `-nh` (no hardware configuration) `-nv` (no video configuration). Only use the hardware configuration of running on the raspberry pi.
 - When developing on a local machine, use the `-dev` argument to set a known MAC address (DEVELOP).
 
-# GPIO Connections
-- Panic push button: `pin 32`
-- Shock sensor: `pin 27`
-- Noise sensor: `pin 12`
-- Motion sensor: `pin 22`
-- led: `pin 17`
+# Hardware
+This software package is compatible and can be installed/ran on linux/unix based machines.
+It is specifically designed for the raspberry pi. The hardware components listed below should be connected to the raspberry 
+pi when running in production mode. For each component, the associated gpio pin is included and how to connect it.
+
+### GPS Breakout Sensor
+- Connected via `usb to serial` adapter
+- Connection diagram can be found at the following link:
+
+  - https://learn.adafruit.com/adafruit-ultimate-gps-on-the-raspberry-pi?view=all
+  
+### Temperature Sensor
+- Connected via `GPIO: 4`
+- a `4.7k ohm resistor` is needed between the `VCC` and `DATA` lines
+
+### Motion (PIR) sensor
+- Connected via `GPIO: 22`
+
+### Status LED
+- Connected via `GPIO: 17`
+- a `270 ohm resistor` is needed between the LED (short leg) and `GND` line
+
+### Panic (Push) button
+- Connected via `GPIO: 6`
+
+### Noise (Sound) sensor
+- Connected via `GPIO: 12`
+
+### Vibration sensor
+- Connected via `GPIO: 26`
+
 
 # REST API
 The server uses a REST API for system access via a client mobile app or raspberry pi client. Below are the API calls available and the required data for success responses.

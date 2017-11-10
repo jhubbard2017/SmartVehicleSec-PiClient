@@ -8,18 +8,18 @@ import os
 import glob
 import time
 import requests
-# import gps
+import gps
 
 from securityclientpy import _logger
 
 
 class HardwareController(object):
 
-    _GPIO_PINS = {'panic': 32, 'shock': 27, 'noise': 12, 'motion': 22, 'led': 17}
+    _GPIO_PINS = {'panic': 6, 'shock': 27, 'noise': 12, 'motion': 22, 'led': 17}
     _THERMAL_SENSOR_BASE_DIR = '/sys/bus/w1/devices/'
     _GEOIP_HOSTNAME = "http://freegeoip.net/json"
     _TEMPERATURE_SIMULATION_DATA = {'fahrenheit': 73.3, 'celcius': 32.0}
-    _SPEEDOMETER_SIMLUATION_DATA = {'speed': 75, 'altitude': 1024.6, 'heading': 120, 'climb': 117}
+    _SPEEDOMETER_SIMLUATION_DATA = {'speed': 75, 'altitude': 1024.6, 'climb': 117}
 
     def __init__(self, no_hardware):
         """set up GPIO and pins as inputs/outputs"""
@@ -30,6 +30,7 @@ class HardwareController(object):
             self.led_flashing = False
 
             # Set up sensors and led
+            GPIO.setmode(GPIO.BCM)
             GPIO.setup(self._GPIO_PINS['panic'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['shock'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['motion'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -209,8 +210,7 @@ class HardwareController(object):
             if report['class'] == 'TPV':
                 data = {
                     'speed': report.speed,
-                    'altitude': report.altitude,
-                    'heading': report.heading,
+                    'altitude': report.alt,
                     'climb': report.climb
                 }
         except KeyError:
@@ -242,8 +242,8 @@ class HardwareController(object):
             report = self.gps_session.next()
             if report['class'] == 'TPV':
                 data = {
-                    'latitude': report.latitude,
-                    'longitude': report.longitude
+                    'latitude': report.lat,
+                    'longitude': report.lon
                 }
         except KeyError:
             pass
