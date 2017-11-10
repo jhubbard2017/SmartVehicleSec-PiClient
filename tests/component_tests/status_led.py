@@ -14,7 +14,7 @@ class statusLEDTest(object):
     def __init__(self):
         # Constructor method
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.MOTION_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.STATUS_LED, GPIO.OUT)
 
     def set_led_output(self, status):
         """turns LED on and off
