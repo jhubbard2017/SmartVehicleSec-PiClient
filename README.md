@@ -41,7 +41,7 @@ pi when running in production mode. For each component, the associated gpio pin 
 - Connected via `GPIO: 12`
 
 ### Vibration sensor
-- Connected via `GPIO: 26`
+- Connected via `GPIO: 27`
 
 
 # REST API
