@@ -35,7 +35,7 @@ class SecurityThreads(object):
         # Create objects for different config/development levels
         self.hwcontroller = HardwareController(no_hardware, serverhost, system_id)
         if not self.no_video:
-            self.videostream = VideoStreamer(SecurityThreads._DEFAULT_CAMERA_ID)
+            self.videostream = VideoStreamer(SecurityThreads._DEFAULT_CAMERA_ID, no_video)
 
     def arm_system(self):
         """method to arm system"""
