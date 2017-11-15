@@ -3,7 +3,7 @@
 # client module
 #
 
-from securityclientpy import _logger, get_mac_address, host, port
+from securityclientpy import _logger, get_mac_address, port
 from securityclientpy.server_requests import ServerRequests
 from securityclientpy.routes.security import Security
 from securityclientpy.routes.system import System
@@ -14,8 +14,9 @@ from securityclientpy.routes import app
 class Client(object):
     """security client class"""
 
-    def __init__(self, serverhost, no_hardware=False, no_video=False, dev=False, testing=False):
+    def __init__(self, host, serverhost, no_hardware=False, no_video=False, dev=False, testing=False):
         """constructor method"""
+        self.host = host
         self.system_id = self.get_device_id(dev, testing)
         _logger.info('System ID = {0}'.format(self.system_id))
         self.server_requests = ServerRequests(serverhost, self.system_id)
@@ -50,7 +51,7 @@ class Client(object):
 
     def start(self):
         """method to start the flask server"""
-        app.run(host=host, port=port)
+        app.run(host=self.host, port=port)
 
     def save_settings(self):
         """method is fired when the user disconnects or the socket connection is broken"""
