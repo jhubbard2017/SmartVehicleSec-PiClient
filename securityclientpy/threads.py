@@ -33,7 +33,7 @@ class SecurityThreads(object):
         self.server_requests = ServerRequests(serverhost, system_id)
 
         # Create objects for different config/development levels
-        self.hwcontroller = HardwareController(no_hardware)
+        self.hwcontroller = HardwareController(no_hardware, serverhost, system_id)
         if not self.no_video:
             self.videostream = VideoStreamer(SecurityThreads._DEFAULT_CAMERA_ID)
 
@@ -73,6 +73,10 @@ class SecurityThreads(object):
         motion = None
         noise = None
 
+        # Motion detection count attribute
+        motion_detected = False
+        motion_count = 0
+
         self.initial_motion_detected = self.initial_motion_is_detected()
         while self._system_armed:
             if not self.no_hardware:
@@ -81,10 +85,15 @@ class SecurityThreads(object):
                     temp = temp['fahrenheit']
                 else:
                     motion = self.hwcontroller.read_motion_sensor()
-                    noise = self.hwcontroller.read_noise_sensor()
-                shock = self.hwcontroller.read_shock_sensor()
+                    if motion: motion_count = motion_count + 1
+                    elif motion_count > 0: motion_count = motion_count - 1
 
-                if motion or noise or shock:
+                if motion_count == 7:
+                    motion_detected = True
+                    motion_count = 0
+                vibration = self.hwcontroller.read_vibration_sensor()
+
+                if motion_detected or noise or shock:
                     # Start breached thread
                     self._system_breached = True
                     thread = Thread(target=self._breached)
@@ -94,6 +103,7 @@ class SecurityThreads(object):
                 if temp and temp >= SecurityThreads._MAX_TEMP:
                     # Notify server of dangerous temp
                     pass
+            time.sleep(0.3)
 
         _logger.info('System disarmed')
 
@@ -242,3 +252,4 @@ class SecurityThreads(object):
             self.videostream.release_stream()
         if not self.no_hardware:
             self.speed_checker_thread_running = False
+            self.hwcontroller.cleanup()

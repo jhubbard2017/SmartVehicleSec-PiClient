@@ -1,5 +1,5 @@
 # Smart Vehicle Security Server
-Python client server software for the Smart Vehicle Security System (Raspberry Pi Client).
+Python client software for the Smart Vehicle Security System (Raspberry Pi Client).
 
 ## Usage Examples
 ### running on local machine and raspberry pi
@@ -36,9 +36,6 @@ pi when running in production mode. For each component, the associated gpio pin 
 
 ### Panic (Push) button
 - Connected via `GPIO: 6`
-
-### Noise (Sound) sensor
-- Connected via `GPIO: 12`
 
 ### Vibration sensor
 - Connected via `GPIO: 27`
@@ -95,10 +92,13 @@ $ make opencv_link_linux_desktop (for ubuntu)
 ```
 
 The packages installed into the virtualenv are dictated by two files
-### `requirements.txt`
+### `requirements/linux.txt`
+### `requirements/osx.txt`
+### `requirements/pi.txt`
 In this file, all packages required to run the tool should be listed. Specify the exact version of the packages so that changes in dependencies don't break your tool.
 ### `requirements-dev.txt`
 In this file, additional packages required to test the tool should be listed. Generally, the exact version is not specified.
+
 
 ## pre-commit
 [pre-commit](http://pre-commit.com) is a tool to find and fix common issues before changes are committed. `pre-commit` will run before each `git commit`.

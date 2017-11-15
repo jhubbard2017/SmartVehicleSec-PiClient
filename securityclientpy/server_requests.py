@@ -124,3 +124,17 @@ class ServerRequests(object):
             return False
 
         return True
+
+    def send_panic_alert(self):
+        """sends post request to server to alert emergency contacts of panic alert
+
+        returns:
+            bool
+        """
+        path = 'security/panic'
+        response = self.request(path)
+        if response['code'] == _FAILURE_CODE:
+            _logger.info('Failed to send panic alert: [{0}]'.format(response['message']))
+            return False
+
+        return True

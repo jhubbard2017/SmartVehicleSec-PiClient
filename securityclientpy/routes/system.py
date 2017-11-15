@@ -13,9 +13,9 @@ class System(object):
 
     _ROOT_PATH = '/system'
 
-    def __init__(self, no_hardware, system_id):
+    def __init__(self, no_hardware, server_host, system_id):
         self.system_id = system_id
-        self.hwcontroller = HardwareController(no_hardware)
+        self.hwcontroller = HardwareController(no_hardware, server_host, system_id)
 
         # Use inner methods so self pointer can be accessed
 

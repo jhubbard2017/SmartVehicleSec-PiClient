@@ -22,10 +22,7 @@ prod:
 	tox -evenv
 
 opencv_install_linux:
-	sudo apt-get install libopencv-dev python-opencv
-
-opencv_install_mac:
-	pip install opencv-python
+	sudo apt-get install python-opencv
 
 install_gpsd:
 	sudo apt-get install gpsd gpsd-clients python-gps

@@ -11,31 +11,37 @@ import requests
 import gps
 
 from securityclientpy import _logger
+from securityclientpy.server_requests import ServerRequests
 
 
 class HardwareController(object):
 
-    _GPIO_PINS = {'panic': 6, 'shock': 27, 'noise': 12, 'motion': 22, 'led': 17}
+    _GPIO_PINS = {'panic_button': 6, 'vibration': 27, 'motion': 22, 'led': 17}
     _THERMAL_SENSOR_BASE_DIR = '/sys/bus/w1/devices/'
     _GEOIP_HOSTNAME = "http://freegeoip.net/json"
     _TEMPERATURE_SIMULATION_DATA = {'fahrenheit': 73.3, 'celcius': 32.0}
     _SPEEDOMETER_SIMLUATION_DATA = {'speed': 75, 'altitude': 1024.6, 'climb': 117}
 
-    def __init__(self, no_hardware):
+    def __init__(self, no_hardware, server_host, system_id):
         """set up GPIO and pins as inputs/outputs"""
 
         self.no_hardware = no_hardware
+        self.server_host = server_host
+        self.system_id = system_id
+        self.server_request = ServerRequests(server_host, system_id)
 
         if not self.no_hardware:
             self.led_flashing = False
 
             # Set up sensors and led
             GPIO.setmode(GPIO.BCM)
-            GPIO.setup(self._GPIO_PINS['panic'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-            GPIO.setup(self._GPIO_PINS['shock'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(self._GPIO_PINS['panic_button'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(self._GPIO_PINS['vibration'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['motion'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-            GPIO.setup(self._GPIO_PINS['noise'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['led'], GPIO.OUT)
+
+            # Panic button callback
+            GPIO.add_event_detect(self._GPIO_PINS['panic_button'], GPIO.BOTH, callback=self.panic_button_callback)
 
             # Set up temperature sensor
             os.system('modprobe w1-gpio')
@@ -101,9 +107,9 @@ class HardwareController(object):
 
             while self.led_flashing:
                 GPIO.output(self._GPIO_PINS['led'], GPIO.HIGH)
-                time.sleep(0.5)
+                time.sleep(0.3)
                 GPIO.output(self._GPIO_PINS['led'], GPIO.LOW)
-                time.sleep(0.5)
+                time.sleep(0.3)
 
     def status_led_flash_stop(self):
         """stops status led flash"""
@@ -151,31 +157,24 @@ class HardwareController(object):
 
         equal_pos = data[1].find('t=')
         if equal_pos != -1:
-            data_string = lines[1][equal_pos+2:]
+            data_string = data[1][equal_pos+2:]
             ctemp = float(data_string) / 1000.0
             ftemp = ctemp * 9.0 / 5.0 + 32.0
 
         return {'fahrenheit': ftemp, 'celcius': ctemp}
 
-    def read_noise_sensor(self):
-        """fetches the current dbs of the noise sensor
-
-        returns:
-            int (maybe float), to be determined
-        """
-        pass
-
-    def read_panic_button(self):
-        """fetches the current status of the panic button via gpio pin
+    def panic_button_callback(self, channel):
+        """callback method for panic push button edge changes
 
         returns:
             bool
         """
         if self.no_hardware:
             return False
-        return GPIO.input(self._GPIO_PINS['panic'])
+        if GPIO.input(self._GPIO_PINS['panic_button']):
+            return self.server_request.send_panic_alert()
 
-    def read_shock_sensor(self):
+    def read_vibration_sensor(self):
         """fetches the current status of the shock sensor via gpio pin
 
         returns:
@@ -183,7 +182,7 @@ class HardwareController(object):
         """
         if self.no_hardware:
             return False
-        return GPIO.input(self._GPIO_PINS['shock'])
+        return GPIO.input(self._GPIO_PINS['vibration'])
 
     def read_motion_sensor(self):
         """fetches the current status of the motion sensoe via gpio pin
@@ -253,3 +252,8 @@ class HardwareController(object):
             self.gps_session = None
 
         return data
+
+    def cleanup(self):
+        if not self.no_hardware:
+            GPIO.cleanup()
+            self.gps_session = None
