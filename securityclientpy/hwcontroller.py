@@ -25,8 +25,6 @@ class HardwareController(object):
         """set up GPIO and pins as inputs/outputs"""
 
         self.no_hardware = no_hardware
-        self.server_host = server_host
-        self.system_id = system_id
         self.server_request = server_request
 
         if not self.no_hardware:
