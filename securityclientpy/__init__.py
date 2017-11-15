@@ -61,7 +61,6 @@ default_logging_config = {
 logging.config.dictConfig(default_logging_config)
 _logger = logging.getLogger(__name__)
 
-# host = socket.gethostbyname(socket.gethostname())
-host = '10.5.75.131'
+host = socket.gethostbyname('localhost')
 port = 3002
 serverport = 3001
