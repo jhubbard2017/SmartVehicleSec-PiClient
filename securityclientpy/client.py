@@ -7,6 +7,7 @@ from securityclientpy import _logger, get_mac_address, host, port
 from securityclientpy.server_requests import ServerRequests
 from securityclientpy.routes.security import Security
 from securityclientpy.routes.system import System
+from securityclientpy.hwcontroller import HardwareController
 from securityclientpy.routes import app
 
 
@@ -18,10 +19,11 @@ class Client(object):
         self.system_id = self.get_device_id(dev, testing)
         _logger.info('System ID = {0}'.format(self.system_id))
         self.server_requests = ServerRequests(serverhost, self.system_id)
+        self.hwcontroller = HardwareController(no_hardware, self.server_requests)
 
         # Routes
-        self.security = Security(no_hardware, no_video, serverhost, self.system_id)
-        self.system = System(no_hardware, serverhost, self.system_id)
+        self.security = Security(no_hardware, no_video, self.system_id, self.hwcontroller, self.server_requests)
+        self.system = System(self.system_id, self.hwcontroller)
 
         # Initialize system with server
         self._initialize_client()

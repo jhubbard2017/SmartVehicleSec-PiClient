@@ -21,13 +21,13 @@ class HardwareController(object):
     _TEMPERATURE_SIMULATION_DATA = {'fahrenheit': 73.3, 'celcius': 32.0}
     _SPEEDOMETER_SIMLUATION_DATA = {'speed': 75, 'altitude': 1024.6, 'climb': 117}
 
-    def __init__(self, no_hardware, server_host, system_id):
+    def __init__(self, no_hardware, server_request):
         """set up GPIO and pins as inputs/outputs"""
 
         self.no_hardware = no_hardware
         self.server_host = server_host
         self.system_id = system_id
-        self.server_request = ServerRequests(server_host, system_id)
+        self.server_request = server_request
 
         if not self.no_hardware:
             # Import the GPS module (hardware config value should only be true if running on rapsberry pi)
@@ -38,13 +38,12 @@ class HardwareController(object):
 
             # Set up sensors and led
             GPIO.setmode(GPIO.BCM)
-            GPIO.setup(self._GPIO_PINS['panic_button'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['vibration'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['motion'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             GPIO.setup(self._GPIO_PINS['led'], GPIO.OUT)
 
-            # Panic button callback
-            GPIO.add_event_detect(self._GPIO_PINS['panic_button'], GPIO.BOTH, callback=self.panic_button_callback)
+            GPIO.setup(self._GPIO_PINS['panic_button'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.add_event_detect(self._GPIO_PINS['panic_button'], GPIO.RISING, callback=self.panic_button_callback)
 
             # Set up temperature sensor
             os.system('modprobe w1-gpio')

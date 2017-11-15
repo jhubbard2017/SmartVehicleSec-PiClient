@@ -17,9 +17,9 @@ class Security(object):
     _DISARM_SYSTEM_KEY = 'disarm_system'
     _FALSE_ALARM_KEY = 'false_alarm'
 
-    def __init__(self, no_hardware, no_video, serverhost, system_id):
+    def __init__(self, no_hardware, no_video, system_id, hwcontroller, server_requests):
         self.system_id = system_id
-        self.security_threads = SecurityThreads(no_hardware, no_video, serverhost, self.system_id)
+        self.security_threads = SecurityThreads(no_hardware, no_video, hwcontroller, server_requests)
 
         # Use inner methods so self pointer can be accessed
 

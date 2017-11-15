@@ -21,7 +21,7 @@ class SecurityThreads(object):
     _FLASH_SYSTEM_DISARMED = 3
     _FLASH_FALSE_ALARM = 2
 
-    def __init__(self, no_hardware, no_video, serverhost, system_id):
+    def __init__(self, no_hardware, no_video, hwcontroller, server_requests):
         """constructor method"""
         self._system_armed = False
         self._system_breached = False
@@ -29,11 +29,10 @@ class SecurityThreads(object):
         self.no_video = no_video
         self.initial_motion_detected = False
         self.speed_checker_thread_running = False
-
-        self.server_requests = ServerRequests(serverhost, system_id)
+        self.server_requests = server_requests
 
         # Create objects for different config/development levels
-        self.hwcontroller = HardwareController(no_hardware, serverhost, system_id)
+        self.hwcontroller = hwcontroller
         if not self.no_video:
             self.videostream = VideoStreamer(SecurityThreads._DEFAULT_CAMERA_ID, no_video)
 
