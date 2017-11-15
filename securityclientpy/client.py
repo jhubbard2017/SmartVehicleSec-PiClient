@@ -21,7 +21,7 @@ class Client(object):
 
         # Routes
         self.security = Security(no_hardware, no_video, serverhost, self.system_id)
-        self.system = System(no_hardware, self.system_id)
+        self.system = System(no_hardware, serverhost, self.system_id)
 
         # Initialize system with server
         self._initialize_client()

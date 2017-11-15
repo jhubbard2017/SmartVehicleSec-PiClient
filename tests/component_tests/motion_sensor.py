@@ -14,7 +14,7 @@ class motionDetectionTest(object):
     def __init__(self):
         # Constructor method
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.MOTION_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.MOTION_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.thread_running = True
 
     def read_motion_sensor(self):

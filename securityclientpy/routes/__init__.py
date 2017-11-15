@@ -5,7 +5,6 @@
 
 from flask import Flask, jsonify
 from securityclientpy import _logger
-from securityclientpy.hwcontroller import HardwareController
 
 app = Flask(__name__)
 

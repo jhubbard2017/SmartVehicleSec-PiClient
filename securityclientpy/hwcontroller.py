@@ -8,7 +8,6 @@ import os
 import glob
 import time
 import requests
-import gps
 
 from securityclientpy import _logger
 from securityclientpy.server_requests import ServerRequests
@@ -31,6 +30,10 @@ class HardwareController(object):
         self.server_request = ServerRequests(server_host, system_id)
 
         if not self.no_hardware:
+            # Import the GPS module (hardware config value should only be true if running on rapsberry pi)
+            # GPS module will only be installed in virtualenv on raspberry pi system
+            import gps
+
             self.led_flashing = False
 
             # Set up sensors and led
