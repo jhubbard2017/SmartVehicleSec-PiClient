@@ -36,7 +36,7 @@ class Client(object):
         if connection_exist == None: return
 
         if connection_exist:
-            if not self.server_requests.update_connection(): return
+            if not self.server_requests.update_connection(self.host, port): return
             config = self.server_requests.get_security_config()
             if not config: return
 
@@ -44,7 +44,7 @@ class Client(object):
             self.security.security_threads.system_armed = config['system_armed']
             self.security.security_threads.system_breached = config['system_breached']
         else:
-            if not self.server_requests.add_connection(): return
+            if not self.server_requests.add_connection(self.host, port): return
             if not self.server_requests.add_security_config(): return
 
         _logger.info('Successfully initialized system')

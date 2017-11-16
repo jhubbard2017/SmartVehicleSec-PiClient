@@ -5,7 +5,7 @@
 
 import requests
 
-from securityclientpy import _logger, host, port, serverport
+from securityclientpy import _logger, serverport
 from securityclientpy.routes import _FAILURE_CODE
 
 
@@ -37,7 +37,7 @@ class ServerRequests(object):
 
         return response.json()
 
-    def update_connection(self):
+    def update_connection(self, host, port):
         """method to send server request for updating connection on the server
 
         returns:
@@ -52,7 +52,7 @@ class ServerRequests(object):
 
         return True
 
-    def add_connection(self):
+    def add_connection(self, host, port):
         """method to send server request for adding connection on the server
 
         returns:
