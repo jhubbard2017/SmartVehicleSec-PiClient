@@ -6,6 +6,7 @@
 from threading import Thread
 import time
 import cv2
+import datetime
 
 from securityclientpy import _logger, host, port, serverport
 from securityclientpy.hwcontroller import HardwareController
