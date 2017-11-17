@@ -161,6 +161,9 @@ class HardwareController(object):
             ctemp = float(data_string) / 1000.0
             ftemp = ctemp * 9.0 / 5.0 + 32.0
 
+        ctemp = float(str('%.1f' % ctemp))
+        ftemp = float(str('%.1f' % ftemp))
+
         return {'fahrenheit': ftemp, 'celcius': ctemp}
 
     def panic_button_callback(self, channel):
