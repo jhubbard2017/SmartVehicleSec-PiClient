@@ -45,7 +45,7 @@ class HardwareController(object):
 
             # Set up temperature sensor
             os.system('modprobe w1-gpio')
-            os.system('mocprobe w1-therm')
+            os.system('modprobe w1-therm')
             thermal_sensor_device_folder = glob.glob(self._THERMAL_SENSOR_BASE_DIR + '28*')[0]
             self.thermal_sensor_device_file = thermal_sensor_device_folder + '/w1_slave'
 
