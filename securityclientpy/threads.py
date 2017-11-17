@@ -92,7 +92,7 @@ class SecurityThreads(object):
                     motion_count = 0
                 vibration = self.hwcontroller.read_vibration_sensor()
 
-                if motion_detected or noise or shock:
+                if motion_detected or vibration:
                     # Start breached thread
                     self._system_breached = True
                     thread = Thread(target=self._breached)
