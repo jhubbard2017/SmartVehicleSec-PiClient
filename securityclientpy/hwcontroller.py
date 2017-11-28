@@ -175,6 +175,7 @@ class HardwareController(object):
         if self.no_hardware:
             return False
         if GPIO.input(self._GPIO_PINS['panic_button']):
+            _logger.info('Panic initiated.')
             return self.server_request.send_panic_alert()
 
     def read_vibration_sensor(self):
