@@ -75,7 +75,7 @@ class SecurityThreads(object):
         noise = None
 
         # Motion detection count attribute
-        motion_detected = False
+        breached = False
         motion_count = 0
 
         self.initial_motion_detected = self.initial_motion_is_detected()
@@ -84,26 +84,31 @@ class SecurityThreads(object):
                 if self.initial_motion_detected:
                     temp = self.hwcontroller.read_thermal_sensor()
                     temp = temp['fahrenheit']
+                    if temp and temp >= SecurityThreads._MAX_TEMP:
+                        # Notify server of dangerous temp
+                        pass
+
                 else:
                     motion = self.hwcontroller.read_motion_sensor()
                     if motion: motion_count = motion_count + 1
                     elif motion_count > 0: motion_count = motion_count - 1
 
-                if motion_count == 7:
-                    motion_detected = True
-                    motion_count = 0
-                vibration = self.hwcontroller.read_vibration_sensor()
+                    if motion_count == 7:
+                        breached = True
+                        motion_count = 0
 
-                if motion_detected or vibration:
+                vibration = self.hwcontroller.read_vibration_sensor()
+                if vibration and not breached: breached = True
+
+                if breached:
                     # Start breached thread
                     self._system_breached = True
+                    if not self.server_requests.send_system_breach_notification():
+                        _logger.info('Failed to send system breach notification.')
                     thread = Thread(target=self._breached)
                     thread.start()
                     break
 
-                if temp and temp >= SecurityThreads._MAX_TEMP:
-                    # Notify server of dangerous temp
-                    pass
             time.sleep(0.3)
 
         _logger.info('System disarmed')
@@ -113,8 +118,9 @@ class SecurityThreads(object):
         _logger.info('System breached.')
 
         # Set up video file and start streaming
-        fourcc = cv2.cv.CV_FOURCC(*'XVID')  # cv2.VideoWriter_fourcc() does not exist
-        video_writer = cv2.VideoWriter("system-breach-recording-{:%b %d, %Y %-I:%M %p}.avi".format(datetime.datetime().now()),
+        if not self.no_video:
+            fourcc = cv2.cv.CV_FOURCC(*'XVID')  # cv2.VideoWriter_fourcc() does not exist
+            video_writer = cv2.VideoWriter("system-breach-recording-{:%b %d, %Y %-I:%M %p}.avi".format(datetime.datetime.now()),
                                        fourcc, 20, (680, 480))
         while self.system_breached:
             if not self.no_video:

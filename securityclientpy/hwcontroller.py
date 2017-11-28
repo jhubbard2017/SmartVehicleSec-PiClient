@@ -206,14 +206,24 @@ class HardwareController(object):
         if self.no_hardware:
             return self._SPEEDOMETER_SIMLUATION_DATA
 
-        data = {}
+        speed = 0.0
+        alt = 0.0
+        climb = 0.0
+        data = {
+            'speed': speed,
+            'altitude': alt,
+            'climb': climb
+        }
         try:
             report = self.gps_session.next()
             if report['class'] == 'TPV':
+                if hasattr(report, 'speed'): speed = report.speed
+                if hasattr(report, 'alt'): alt = report.alt
+                if hasattr(report, 'climb'): climb = report.climb
                 data = {
-                    'speed': report.speed,
-                    'altitude': report.alt,
-                    'climb': report.climb
+                    'speed': speed,
+                    'altitude': alt,
+                    'climb': climb
                 }
         except KeyError:
             pass

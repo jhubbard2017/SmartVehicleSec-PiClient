@@ -138,3 +138,17 @@ class ServerRequests(object):
             return False
 
         return True
+
+    def send_system_breach_notification(self):
+        """sends post request to server to set system as breach
+
+        returns:
+            bool
+        """
+        path = 'security/set_breach'
+        response = self.request(path)
+        if response['code'] == _FAILURE_CODE:
+            _logger.info('Failed to send breach alert: [{0}]'.format(response['message']))
+            return False
+
+        return True
