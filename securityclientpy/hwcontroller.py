@@ -210,29 +210,19 @@ class HardwareController(object):
         speed = 0.0
         alt = 0.0
         climb = 0.0
-        data = {
-            'speed': speed,
-            'altitude': alt,
-            'climb': climb
-        }
+
         try:
             report = self.gps_session.next()
             if report['class'] == 'TPV':
                 if hasattr(report, 'speed'): speed = report.speed
                 if hasattr(report, 'alt'): alt = report.alt
                 if hasattr(report, 'climb'): climb = report.climb
-                data = {
-                    'speed': speed,
-                    'altitude': alt,
-                    'climb': climb
-                }
-        except KeyError:
-            pass
-        except KeyboardInterrupt:
-            pass
-        except StopIteration:
-            self.gps_session = None
 
+        except KeyError: pass
+        except KeyboardInterrupt: pass
+        except StopIteration: self.gps_session = None
+
+        data = { 'speed': speed, 'altitude': alt, 'climb': climb }
         return data
 
     def read_gps_sensor(self):
@@ -241,30 +231,23 @@ class HardwareController(object):
         returns:
             {latitude, longitude}
         """
-        if self.no_hardware:
-            geo = requests.get(self._GEOIP_HOSTNAME)
-            json_data = geo.json()
-            data = {
-                "latitude": float(json_data["latitude"]),
-                "longitude": float(json_data["longitude"])
-            }
-            return data
+        geo = requests.get(self._GEOIP_HOSTNAME)
+        json_data = geo.json()
+        lat = float(json_data["latitude"])
+        lon = float(json_data["longitude"])
 
-        data = {}
-        try:
-            report = self.gps_session.next()
-            if report['class'] == 'TPV':
-                data = {
-                    'latitude': report.lat,
-                    'longitude': report.lon
-                }
-        except KeyError:
-            pass
-        except KeyboardInterrupt:
-            pass
-        except StopIteration:
-            self.gps_session = None
+        if not self.no_hardware:
+            try:
+                report = self.gps_session.next()
+                if report['class'] == 'TPV':
+                    if hasattr(report, 'lat'): lat = report.lat
+                    if hasattr(report, 'lon'): lon = report.lon
 
+            except KeyError: pass
+            except KeyboardInterrupt: pass
+            except StopIteration: self.gps_session = None
+
+        data = {'latitude': lat, 'longitude': lon}
         return data
 
     def cleanup(self):
