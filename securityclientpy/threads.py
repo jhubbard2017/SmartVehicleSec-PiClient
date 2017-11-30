@@ -109,6 +109,7 @@ class SecurityThreads(object):
                         _logger.info('Failed to send system breach notification.')
                     thread = Thread(target=self._breached)
                     thread.start()
+                    self.hwcontroller.status_led_flash_start()
                     break
 
             time.sleep(0.3)
@@ -130,6 +131,7 @@ class SecurityThreads(object):
                 if status:
                     video_writer.write(frame)
 
+        self.hwcontroller.status_led_flash_stop()
         _logger.info('System breach ended')
 
     def initial_motion_is_detected(self):
