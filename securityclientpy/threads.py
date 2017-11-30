@@ -44,6 +44,7 @@ class SecurityThreads(object):
         if self._system_armed: return
         self._system_armed = True
         self.hwcontroller.status_led_flash(SecurityThreads._FLASH_SYSTEM_ARMED)
+        self.hwcontroller.status_led_on()
 
         # Start system armed thread
         thread = Thread(target=self._armed)
@@ -61,6 +62,7 @@ class SecurityThreads(object):
 
         if not self._system_breached: return
         self._system_breached = False
+        self._system_armed = False
         self.hwcontroller.status_led_flash(SecurityThreads._FLASH_FALSE_ALARM)
 
     def _armed(self):
@@ -122,7 +124,7 @@ class SecurityThreads(object):
             fourcc = cv2.cv.CV_FOURCC(*'XVID')  # cv2.VideoWriter_fourcc() does not exist
             video_writer = cv2.VideoWriter("system-breach-recording-{:%b %d, %Y %-I:%M %p}.avi".format(datetime.datetime.now()),
                                        fourcc, 20, (680, 480))
-        while self.system_breached:
+        while self._system_breached:
             if not self.no_video:
                 status, frame_jpeg, frame = self.videostream.read()
                 if status:
